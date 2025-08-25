@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Newton Bounce Effect</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: #f0f0f0;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .textbox {
+      width: 150px;
+      height: 40px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      padding: 5px;
+      font-size: 16px;
+      background: white;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="world"></div>
+
+  <!-- Matter.js -->
+  <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
+  <script>
+    const { Engine, Render, Runner, Bodies, Composite } = Matter;
+
+    // Create engine and world
+    const engine = Engine.create();
+    const world = engine.world;
+
+    // Create renderer
+    const render = Render.create({
+      element: document.getElementById('world'),
+      engine: engine,
+      options: {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        wireframes: false,
+        background: '#f0f0f0'
+      }
+    });
+    Render.run(render);
+
+    // Runner
+    const runner = Runner.create();
+    Runner.run(runner, engine);
+
+    // Ground
+    const ground = Bodies.rectangle(window.innerWidth/2, window.innerHeight, window.innerWidth, 40, { isStatic: true });
+    Composite.add(world, ground);
+
+    // Create falling textboxes
+    const createTextbox = (x, y, text) => {
+      return Bodies.rectangle(x, y, 150, 40, {
+        restitution: 0.6, // bounciness
+        render: {
+          fillStyle: 'white',
+          strokeStyle: '#333',
+          lineWidth: 2,
+          text: {
+            content: text,
+            color: 'black',
+            size: 16
+          }
+        }
+      });
+    };
+
+    // Add textboxes
+    const boxes = [
+      createTextbox(300, 0, "Hello"),
+      createTextbox(500, -100, "World"),
+      createTextbox(700, -200, "Newton Effect")
+    ];
+    Composite.add(world, boxes);
+
+    // Responsive ground
+    window.addEventListener("resize", () => {
+      Matter.Body.setPosition(ground, { x: window.innerWidth/2, y: window.innerHeight });
+      Matter.Body.setVertices(ground, [
+        { x: 0, y: window.innerHeight },
+        { x: window.innerWidth, y: window.innerHeight },
+        { x: window.innerWidth, y: window.innerHeight+40 },
+        { x: 0, y: window.innerHeight+40 }
+      ]);
+    });
+  </script>
+</body>
+</html>
